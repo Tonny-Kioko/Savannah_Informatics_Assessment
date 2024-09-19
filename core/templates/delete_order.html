@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Order</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+  <header>
+    <h1>Delete Order</h1>
+  </header>
+
+  <section>
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="message {{ message.tags }}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <h2>Are you sure you want to delete the following order?</h2>
+    <div class="order-details">
+      <p><strong>Order Number:</strong> {{ order.order_number }}</p>
+      <p><strong>Item:</strong> {{ order.item.item }}</p>
+      <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+      <p><strong>Amount:</strong> {{ order.amount }}</p>
+      <p><strong>Status:</strong> {{ order.status }}</p>
+    </div>
+
+    <form method="post" action="{% url 'delete_order' pk=order.pk %}">
+      {% csrf_token %}
+      <button type="submit">Confirm Deletion</button>
+    </form>
+
+    <p><a href="{% url 'list_orders' customer_id=order.customer.id %}">Cancel</a></p>
+  </section>
+
+</body>
+
+</html>

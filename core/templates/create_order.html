@@ -1,0 +1,81 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Order</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+  <header>
+    <h1>Create a New Order</h1>
+  </header>
+
+  <section>
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="message {{ message.tags }}">
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'create_order' %}">
+      {% csrf_token %}
+      <fieldset>
+        <legend>Order Details</legend>
+
+        <div class="form-group">
+          <label for="item">Item:</label>
+          {{ form.item_to_order }}
+          {% if form.item.errors %}
+          <div class="error">{{ form.item.errors }}</div>
+          {% endif %}
+          <br><br><br>
+        </div>
+
+        <div class="form-group">
+          <label for="quantity">Quantity:</label>
+          {{ form.quantity }}
+          {% if form.quantity.errors %}
+          <div class="error">{{ form.quantity.errors }}</div>
+          {% endif %}
+          <br><br><br>
+        </div>
+
+        <div class="form-group">
+          <label for="amount">Amount:</label>
+          {{ form.amount }}
+          {% if form.amount.errors %}
+          <div class="error">{{ form.amount.errors }}</div>
+          {% endif %}
+          <br><br><br>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status:</label>
+          {{ form.status }}
+          {% if form.status.errors %}
+          <div class="error">{{ form.status.errors }}</div>
+          {% endif %}
+          <br><br><br>
+        </div>
+
+        <br><br><br>
+
+        <button type="submit">Create Order</button>
+      </fieldset>
+    </form>
+
+    <p><a href="{% url 'list_orders' customer_id=request.user.id %}">Back to Orders</a></p>
+  </section>
+
+</body>
+
+</html>

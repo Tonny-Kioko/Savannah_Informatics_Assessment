@@ -1,0 +1,66 @@
+{% load static %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home - Orders</title>
+  <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+
+<body>
+  <header>
+    <h1>Welcome, {{ customer.email }}</h1>
+    <br>
+    <nav>
+      <ul>
+        <li><a href="{% url 'create_order' %}">Create New Order</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="orders-container">
+    <h2>Your Orders</h2>
+
+    {% if orders %}
+    <div class="orders-table-container">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Order Number</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date Placed</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>{{ order.order_number }}</td>
+            <td>{{ order.item_to_order }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>{{ order.amount }}</td>
+            <td>{{ order.status }}</td>
+            <td>{{ order.order_placed_at }}</td>
+            <td>
+              <a href="{% url 'delete_order' order.pk %}">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p>No orders found. <a href="{% url 'create_order' %}">Create your first order!</a></p>
+    {% endif %}
+  </section>
+
+</body>
+
+</html>
