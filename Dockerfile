@@ -1,5 +1,5 @@
 # Official base image
-FROM python:3.9-slim-buster
+FROM python:latest
 
 # set work directory
 WORKDIR /savannah
@@ -16,4 +16,4 @@ RUN pip install -r requirements.txt
 
 RUN ls -la /savannah/
 
-CMD ["bash", "-c", "python manage.py collectstatic --noinput && python manage.py migrate && python manage.py makemigrations && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"]
+CMD ["bash", "-c", "python manage.py makemigrations && python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"]

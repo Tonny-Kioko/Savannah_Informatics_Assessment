@@ -8,7 +8,6 @@ username = config('MY_USERNAME')
 api_key = config('API_KEY')
 sender = config('SENDER')
 
-print(f"Username: {username}, API Key: {api_key}, Sender: {sender}")
 
 africastalking.initialize(username, api_key)
 sms = africastalking.SMS

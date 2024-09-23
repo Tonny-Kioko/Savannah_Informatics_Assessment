@@ -3,18 +3,6 @@ from django.db import models
 from .phone_number import PhoneNumberField
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
-class Customer(AbstractBaseUser):
-    email = models.EmailField(unique=True, blank=False)
-    phone_number = PhoneNumberField(max_length=13)
-    customer_code = models.CharField(max_length=100)
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ["customer_code"]
-
-    def __str__(self):
-        return self.email
-
-
 class CustomerManager(BaseUserManager):
     def create_user(self, email, customer_code, **extra_fields):
         if not email:
@@ -31,6 +19,20 @@ class CustomerManager(BaseUserManager):
         return self.create_user(email, customer_code, **extra_fields)
 
 
+class Customer(AbstractBaseUser):
+    email = models.EmailField(unique=True, blank=False)
+    phone_number = PhoneNumberField(max_length=13)
+    customer_code = models.CharField(max_length=100)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["customer_code"]
+
+    objects = CustomerManager()
+
+    def __str__(self):
+        return self.email
+
+
 class Item(models.Model):
     item_id = models.UUIDField(default=uuid.uuid4, editable=False)
     item = models.CharField(max_length=200)
@@ -38,7 +40,7 @@ class Item(models.Model):
     price = models.PositiveIntegerField()
 
     def __str__(self):
-        return self.name
+        return self.item
 
 STATUS = (
     ("Pending", "Pending"),    

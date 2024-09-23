@@ -1,16 +1,16 @@
 version: '3.9'
-
 services:
-  db:
+
+  pgdb:
     image: postgres:14.2-alpine
-    container_name: savannah_db
+    container_name: savannahdb
     restart: unless-stopped
     ports:
       - '5432:5432'
     environment:
       POSTGRES_DB: savannah
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password@123
+      POSTGRES_PASSWORD: c3po
     volumes:
       - postgresql-data:/var/lib/postgresql/data
   
@@ -19,9 +19,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: web:latest
-    container_name: savannah_web
+    image: savannahweb:latest
+    container_name: savannahweb
     restart: unless-stopped
+    depends_on:
+      - pgdb
     environment:
       - DATABASE_URL=postgres://postgres:password@123:5432/savannah
     volumes:
@@ -32,7 +34,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.36.2
-    container_name: savannah_prometheus
+    container_name: savannahprometheus   
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
     volumes:
@@ -44,9 +46,14 @@ services:
 
   grafana:
     image: grafana/grafana
-    container_name: savannah_grafana
+    container_name: savannahgrafana
     depends_on:
       - prometheus
     ports:
       - "3000:3000"
     restart: unless-stopped
+
+  
+volumes:
+  postgresql-data:
+    driver: local
