@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login as auth_login
 
 from core.forms import SignUpForm, UserSignInForm, OrderForm
+from core.send_confirmation import SendSms
 
 
 def home(request):
@@ -68,7 +69,7 @@ def registerUser(request):
                 messages.success(
                     request, "Registration successful, and you're now logged in."
                 )
-                return redirect("list_orders")
+                return redirect("list_orders", customer_id=request.user.id)
             else:
                 messages.error(request, "Registration failed. Please try again.")
                 return redirect("register")
@@ -92,6 +93,9 @@ def createOrder(request):
             order = form.save(commit=False)            
             order.customer = request.user 
             order.save()
+
+            sms_sender = SendSms()
+            sms_sender.sending(order, order.customer)
 
             messages.success(request, "Your order has been created.")
             

@@ -4,6 +4,7 @@ from django import forms
 from core.models import Customer, Item, Order
 from datetime import datetime
 from django.contrib.auth import authenticate
+import re
 
 
 class SignUpForm(forms.ModelForm):
@@ -19,6 +20,13 @@ class SignUpForm(forms.ModelForm):
             "customer_code",
             
         ]
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data["phone_number"]
+        if not re.match(r"^\+254\d{9}$", phone_number):
+            raise forms.ValidationError(
+                "Phone number must be in the format +254XXXXXXXXX"
+            )
+        return phone_number
     def save(self, commit=True):
 
         user = super().save(commit=False)

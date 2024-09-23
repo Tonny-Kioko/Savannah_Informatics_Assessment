@@ -19,27 +19,23 @@ class PhoneNumberField(models.CharField):
     def from_db_value(self, value, expression, connection):
         if value is None:
             return value
-        return "+254" + value.lstrip("0")
+        # Assume the database only stores the digits after +254
+        return "+" + value
 
     def to_python(self, value):
         if value is None:
             return value
         value = value.strip()
-        if value.startswith("+"):
-            value = value[1:]
-        if not value.startswith("254"):
-            value = "254" + value
-        return "+" + value
-
-    def validate(self, value, model_instance):
-        super().validate(value, model_instance)
-        if value is not None:
-            if not re.match(r"^\+254\d{9}$", value):
-                raise ValidationError(
-                    "Phone number must be in the format +254XXXXXXXXX"
-                )
+        if value.startswith("+254"):
+            return value  # Return as is
+        if value.startswith("0"):
+            value = value[1:]  # Remove leading 0
+        if value.startswith("7"):
+            value = "254" + value  # Format to +254
+        return "+254" + value  # Ensure it starts with +254
 
     def get_prep_value(self, value):
         if value is None:
             return value
-        return value.lstrip("+")
+        # Remove the +254 part to save only the unique part
+        return value.lstrip("+254")  # Save only the digits
