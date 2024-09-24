@@ -1,154 +1,166 @@
-# Technical-Interview---Savannah-Informatics
-This is a guide on how I accomplished the Technical assignment for the Technical Support Engineer role at Savannah Informatics.
+# Savannah Informatics Technical Interview
+This is a break down on the various reqiorements for the Technical assignment on the Technical Support Engineer role.
 
-The Customer Order App is a simple web application designed for managing customer orders. It has been containerized using Docker, deployed on a microk8s scalable cluster.
+This is a simple customer order placement and management application where customers can enter items to place orders on. The application has been built using Python/Django, containerized with Docker, uses a PostgreSQL database and uses Prometheus and Grafana for monitoring.
 
 ## Key Features
-- User Authentication and Authorization: Integrated with Keycloak for secure user management.
-- Data Validation: Sanitize user inputs using bleach.clean() to prevent XSS
-- SMS Notifications: Sends SMS notifications to users when an order is added, using Africa's Talking API.
-- Database: Uses MySQL for data storage.
-- Scalability: Deployed on a microk8s Kubernetes cluster for scalability and reliability.
-- Continuous Deployment: Automated updates using Ansible.
+- User Authentication and Authorization: 
+- Data Validation: Using csrf tokens and cookie management to prevent to prevent XSS attacks, WAF to prevent DDos attacks and form validation for Business Logic attacks.
+- SMS Notifications: Sends SMS notifications with the user's email, order number and amount when an order is added, using Africa's Talking API.
+- Database: Uses PostgreSQL running on a Docker container and deployed using docker-compose running on the same network as the web apis and monitoring tools.
+- Scalability: Deployed on an AWS instance, with a load balancer and an auto scaling group for efficient scaling.
+- Continuous Deployment: Using GitHub actions to automate deployment once tests are passed.
+- Infrastructure Orchestration: Using Terraform to automate resource provisioning and ensuring the processes can be replicated.
+- Monitoring and Evaluation: Using Prometheus and Grafana for monitoring to ensure easier user metric monitoring.
 
 ## Prerequisites
-- Python
+- Python/Django
 - Docker
-- Docker Hub account
-- microk8s installed on my server
-- Ansible installed on my local machine
-- MySQL database
-- Keycloak server for user authentication and authorization
+- An AWS Account
+- PostgreSQL database
+- Terraform
+- Prometheus and Grafana
 - Africa's Talking API credentials for SMS notifications
 
 1. ### Development
 
-I used Flask to create a web service and define routes for the application.
+I used Django to create REST APIs for simple user operations.
 
 2. ### Testing
-Tested my application's routes.
-Testing files:
-<br>  
-/test_app.yaml
+I run tests for all created APIs and models to ensure they behave as expected. Integration tests were also performed to ensure users can conduct all activities as intended. 
+
+```sh
+python manage.py test core.test -v 2
+
+```
 
 ![alt text](screenshots/testing.png)
 
 
-3. ### Dockerize and push the App
-Built and pushed the Docker image to Docker Hub.
-![alt text](screenshots/Docker_build1.png)
-
-```sh
-docker build -t kestack/customerorder-app:latest .
-docker push kestack/customerorder-app:latest
-```
-
-4. ### Pull Docker Image on Server
-SSH into my server and pulled the Docker image from Docker Hub.
-
-```sh
-docker pull kestack/customerorder-app:latest
-```
-
-### Summary for microk8s Setup
-
-5. ### Set Up microk8s**
-
-I installed and configured microk8s on my server to deploy the Customer Order App. The setup involved using three key configuration files:
-
- **deployment.yaml**: 
-   - Defined the Kubernetes Deployment for the application, specifying the Docker image, replicas, and other deployment settings.
-
- **service.yaml**: 
-   - Configured the Kubernetes Service to expose the application, facilitating network access to the app. A LoadBalancer service type was used to allow external access.
-
- **hpa.yaml**: 
-   - Set up Horizontal Pod Autoscaler (HPA) to automatically scale the number of pod replicas based on CPU utilization, ensuring the application can handle varying loads efficiently.
-
-These files collectively ensured a robust and scalable deployment of the application within the Kubernetes cluster managed by microk8s.
-
-You can find the configuration file in the root directory of this project.
-
-/deployment.yaml <br> 
-/service.yaml <br> 
-/hpa.yaml
-
-6. ### Deployed the app on microk8s
-
-Applied the deployment:
-
-![alt text](screenshots/microk8s-deployment.png)
+3. ### Dockerizing the application, its database and monitoring tools
+I built containers for the web, PostgreSQL database, Prometheus and Grafana. I added them to the same network to ensure they can communicate.  
 
 
 ```sh
-sudo docker kubectl get all -A
+docker-compose up --build
+
 ```
+![alt text](screenshots/dockercomposedeployment.png)
 
-![alt text](screenshots/microk8s-get-all.png)
+<br>
 
-7. ### Set Up Keycloak
-Used KeyCloak's documentation to get started. https://www.keycloak.org/getting-started/getting-started-docker
+4. ### Setting up Terraform for Infrastructure Orchestration
 
-![alt text](screenshots/keycloak-admin-login.png)
+I used Terraform to set up my AWS resources to ensure easier automation and convenient replication and scalability for every deployment. The resources are defined on the main.tf file.
 
-Configured KeyCloak to Athenticate and Authorize Users for my app
-![alt text](screenshots/customerorder-realm.png)
+ **Initialize Terraform**: 
+   - Before I can applied my configuration, I initialized Terraform in my working directory.
 
-8. ### Configure MySQL
-Set up a MySQL database
+  ```sh
+    terraform init
+  ```
 
-Created Customers Table
-![alt text](screenshots/customerTable.png)
+ **Previewing Changes**: 
+  - I previews the changes Terraform will make to my infrastructure 
 
-Created Orders Table
-![alt text](screenshots/ordersTable.png)
+  ```sh
+    terraform plan
+  ```  
 
-Overall Database Schema
-![alt text](<screenshots/Database Schema.png>)
+ **Applying the Terraform Configuration**: 
+   - After previewing the resources and ensuring they are configured correctly, I provisioned the resources
 
-9. Configured SMS Notifications
-Set up Africa's Talking API credentials and configured my application to use these credentials for sending SMS notifications.
+  ```sh
+    terraform apply
+  ```  
+  
+5. ### Deployed the application on an EC2 Instance
 
-SMS Sent to customer after order creation
-![alt text](screenshots/SMS-sending.png)
-
-10. Configured CI/CD Pipeline with Ansible
-I Set up ssh keys on my machine and the server for easier and secure communications.
-
-I tested if I can reach my server after defining my hosts "linux" group,
-```sh
-ansible linux -m ping
-```
-
-![alt text](screenshots/ansible-ping-hosts.png)
+The application is containerized, and deployed on AWS ECS using the EC2 deployment type. 
 
 
-## User Journey
+6. ### Monitoring the deployment using Prometheus and Grafana
+  - Monitoring the deployment and visualizing various metrics with Prometheus and Grafana ensures the Operations team can right-size the resources as needed.
+   
+  - Prometheus captures all platform metrics and sends them to Grafana.
+
+  ![alt text](screenshots/prometheusisup.png)
+
+  <br>
+
+  - Grafana models the results making it easier to understand and use to make decisions
+
+  ![alt text](screenshots/grafanaisup.png)
+
+
+
+6. Configured SMS Notifications
+I Set up Africa's Talking API and configured my application to use these credentials for sending SMS notifications highlighting key details on their order.
+
+SMS Sent to customer after order creation containing their email address, order number and the amount due/paid based on the status of their order.
+</br>
+
+![alt text](screenshots/smsconfirm.png)
+
+7. Configured CI/CD Pipeline with Jenkins
+I set up a Jenkins container to run a CI/CD pipeline. This ensured any updates made to the main repository are automatically deployed to the application
+
+
+![alt text](screenshots/jenkins.png)
+
+
+## User Navigation through Platform
 Login Page
-![alt text](screenshots/Login-page.png)
+-   For the login page, the user joins with their registered email address and a customer code they used for registration.
 
-Redirected to login with KeyCloak
-![alt text](screenshots/login-redirect.png)
+![alt text](screenshots/loginpage.png)
+
 
 Simple Homepage
+-   The homepage contains a registration and login page, to ensure users only have access to order data after they have logged in.
+
 ![alt text](screenshots/home.png)
 
-Add Customer Page
-![alt text](screenshots/add-customer.png)
+User registration Page
+-   The registration page takes useer's unique email, customer code and a phone number that will be contacted once an order is placed.
 
-Success Adding a Customer
-![alt text](screenshots/customeradded-success.png)
+![alt text](screenshots/registration.png)
+
+User Order History Page
+-   Once a user makes an order, they are saved to their order history page. Here, they can view all the orders they have made, listed on recency. 
+
+![alt text](screenshots/orderhistory.png)
 
 Add Order Page
-![alt text](screenshots/add-order.png)
+-   A user can add an Order, and it is listed on their history page.
 
-Success Adding a Page
-![alt text](screenshots/add-order-success.png)
+![alt text](screenshots/neworder.png)
 
-SMS Sent to customer after order creation
-![alt text](screenshots/SMS-sending.png)
+Deleting Orders
+-   Users can delete their orders whenever they want to, and they will be notified of a deletion. 
+
+![alt text](screenshots/deleteorder.png)
+
+Notification on Successful Order Placement
+-   Once the order is placed, the user receives a notification through Africa's Talking. 
+![alt text](screenshots/successfulorder.png)
 
 
+
+## Replicating Project. 
+Since all components of the project are containeerized, you can easily test it on your system. Here is a guide on testing the project locally. 
+
+1. ### Cloning the repository
+First, clone the repository by running
+```sh
+git clone https://github.com/Tonny-Kioko/Savannah_Informatics_Assessment.git
+```
+2. ### Running the deployment
+Once cloned, the docker-compose file will be available at the root of the directory. Run the application:
+```sh
+docker-compose up --build
+```
 
 ## Conclusion
-My Customer-Order App is set up with Docker, Microk8s, MySQL, Keycloak, and SMS integration. Continuous deployment is managed via Ansible, ensuring my app stays up-to-date with minimal manual intervention.
+
+This is an end-to-end application, covering the entire CI/CD pipeline, using Jenkins, Docker, Prometheus, Grafana among others. It offers a great learning o,opportunity on DevOps practices, monitoring and evaluation, API integration among others.  

@@ -7,9 +7,3 @@ scrape_configs:
     static_configs:
       - targets: ['savannahweb:8000']
 
-
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets:
-            - "0.0.0.0:8000"
