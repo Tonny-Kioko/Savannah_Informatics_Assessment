@@ -9,7 +9,7 @@ This is a simple customer order placement and management application where custo
 - SMS Notifications: Sends SMS notifications with the user's email, order number and amount when an order is added, using Africa's Talking API.
 - Database: Uses PostgreSQL running on a Docker container and deployed using docker-compose running on the same network as the web apis and monitoring tools.
 - Scalability: Deployed on an AWS instance, with a load balancer and an auto scaling group for efficient scaling.
-- Continuous Deployment: Using GitHub actions to automate deployment once tests are passed.
+- Continuous Deployment: Using Jenkins to automate deployment once tests are passed.
 - Infrastructure Orchestration: Using Terraform to automate resource provisioning and ensuring the processes can be replicated.
 - Monitoring and Evaluation: Using Prometheus and Grafana for monitoring to ensure easier user metric monitoring.
 
